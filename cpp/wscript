@@ -1,0 +1,87 @@
+#!/usr/bin/env python
+
+
+def options(opt):
+	opt.tool_options('compiler_cxx')
+	opt.tool_options('boost')
+	opt.add_option('--with-cpp0x', action='store_true', default=False, help='Use C++0x and add support for C++0x lambdas')
+
+
+def configure(conf):
+	def check_for_cpp0x_feature(msg, code, define_name):
+		b = conf.check( \
+			fragment = code, \
+			execute = 0, \
+			define_ret = 0, \
+			msg = msg, \
+			cxxflags = conf.env['CXXFLAGS_BUILDFLAGS'], \
+			okmsg = 'yes', \
+			errmsg = 'no', \
+			mandatory = 0 \
+		)
+		if b:
+			conf.define(define_name, 1)
+
+	conf.check_tool('compiler_cxx boost')
+        conf.check_boost()
+
+	if conf.options.with_cpp0x:
+		stdflags = ['-std=c++0x']
+	else:
+		stdflags = ['-std=c++98']
+
+	conf.env['CXXFLAGS_BUILDFLAGS'] = ['-O0', '-g3', '-ggdb', '-Wextra', '-Wall'] + stdflags + ['-pedantic']
+
+	if conf.options.with_cpp0x:
+		check_for_cpp0x_feature('Checking for C++0x static assert', 'template < int I > struct test { static_assert(I == 0, "err"); }; int main() { test < 0 > t; return 0; }\n', 'WITH_CPP0X_STATIC_ASSERT')
+		check_for_cpp0x_feature('Checking for C++0x lambda support', 'int main() { auto f = [](){}; f(); return 0; }\n', 'WITH_CPP0X_LAMBDA')
+		check_for_cpp0x_feature('Checking for C++0x variadic template support', 'template < typename ... T > struct test {}; int main() { test < int, float > t; return 0; }\n', 'WITH_CPP0X_VARIADIC_TEMPLATES')
+	else:
+		conf.end_msg("C++0x support disabled (use --with-cpp0x to enable)", "YELLOW")
+
+	conf.write_config_header('arpc_config.h')
+
+
+def build(bld):
+	bld.recurse('jsoncpp')
+
+
+	import re
+	r_test = re.compile('.cpp$')
+
+
+	tests = [
+#		{ "file": "json_test.cpp", "unit_test" : True }
+	]
+
+
+	# create build task generators for all one-file unit tests
+	for test in tests:
+		try:
+			filename = test["file"]
+		except:
+			continue
+
+		try:
+			uselib = test["uselib"]
+		except KeyError:
+			uselib = ""
+
+		features = ['cxx', 'cxxprogram']
+
+		try:
+			is_unit_test = test["unit_test"]
+			if is_unit_test:
+				features += ['test']
+		except KeyError:
+			pass
+
+		bld(
+			features = features,
+			use = 'jsoncpp',
+			uselib = uselib + ' BOOST BUILDFLAGS',
+			target = r_test.sub('.test', filename),
+			includes = '. test',
+			source = "test/" + filename
+		)
+

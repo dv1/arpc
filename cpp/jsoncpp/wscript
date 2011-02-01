@@ -3,10 +3,9 @@
 
 def build(bld):
 	obj = bld(
-		features = ['cxx', 'cxxstlib'],
+		features = ['cxx'],
 		includes = 'jsoncpp/include',
 		export_includes = 'jsoncpp/include',
-		target = 'jsoncpp',
 		name = 'jsoncpp',
 		uselib = 'BUILDFLAGS',
 		source = bld.path.ant_glob('jsoncpp/src/lib_json/*.cpp')

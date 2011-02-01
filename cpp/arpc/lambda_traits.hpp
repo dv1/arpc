@@ -1,6 +1,16 @@
 #ifndef ARPC_LAMBDA_TRAITS_HPP
 #define ARPC_LAMBDA_TRAITS_HPP
 
+/*
+lambda_traits.hpp - traits class for C++0x lambda expressions; determines return type and argument types of a lambda expression
+
+Copyright (c) 2011 Carlos Rafael Giani
+
+Distributed under the Boost Software License, Version 1.0.
+See accompanying file LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt
+*/
+
 #include <arpc_config.h>
 
 #ifdef WITH_CPP0X_VARIADIC_TEMPLATES
@@ -108,6 +118,9 @@ struct lambda_traits
 	typedef detail::lambda_traits_impl < lambda_t > impl_t;
 	typedef typename impl_t::arguments_t arguments_t;
 	typedef typename impl_t::result_t result_t;
+
+	// This concatenation of result and argument types is for convenience;
+	// for example, the boost.function_types library expects such a sequence for function type synthesis
 	typedef typename boost::mpl::push_front < arguments_t, result_t > ::type components_t;
 };
 

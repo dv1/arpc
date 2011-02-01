@@ -1,6 +1,19 @@
 #ifndef ARPC_FROM_VARIADIC_HPP
 #define ARPC_FROM_VARIADIC_HPP
 
+/*
+from_variadic.hpp - utility code to convert variadic template arguments to a Boost.MPL vector
+
+original code from Dmytro Shandyba's blog:
+http://blog.shandyba.com/2009/12/17/converting-variadic-template-arguments-pack-to-boost-mpl-sequence/
+
+Copyright (c) 2011 Carlos Rafael Giani
+
+Distributed under the Boost Software License, Version 1.0.
+See accompanying file LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt
+*/
+
 #include <boost/mpl/vector.hpp>
 #include <boost/mpl/push_front.hpp>
 

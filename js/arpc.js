@@ -1,3 +1,22 @@
+/*
+arpc.js - JavaScript implementation of arpc
+
+arpc is a simple library for serializing asynchronous function calls and invoking said calls.
+The three main functions are:
+- serialize_call: serializes a function call; the first argument is the function name; the remaining arguments are arguments for the function call
+  returns the serialized call as a string
+- invoke_serialized_call: given a serialized function call, invoke_serialized_call deserializes it, and calls any previously
+  registered function with the name stored in the serialized call
+- register_function: registers a function; the registry is used by invoke_serialized_call to find a suitable function after
+  deserializing a call
+
+Copyright (c) 2011 Carlos Rafael Giani
+
+Distributed under the Boost Software License, Version 1.0.
+See accompanying file LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt
+*/
+
 function arpc(serialized_call_type)
 {
 	this.serialized_call_type = serialized_call_type;

@@ -1,6 +1,21 @@
 #ifndef ARPC_SERIALIZED_CALL_HANDLER_HPP
 #define ARPC_SERIALIZED_CALL_HANDLER_HPP
 
+/*
+serialized_call_handler.hpp - polymorphic code for handling serialized calls
+
+This handler class is used for creating handlers tailored to specific function types. It is polymorphic, to allow for
+these handlers to be stored in STL containers. invoke_function() is the only method in the abstract serialized_call_handler_base
+class. Its derivatives accept a function type as an extra template parameter, and the implementation of invoke_function()
+is constructed according to the function type.
+
+Copyright (c) 2011 Carlos Rafael Giani
+
+Distributed under the Boost Software License, Version 1.0.
+See accompanying file LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt
+*/
+
 
 #include <iterator>
 #include <boost/function.hpp>

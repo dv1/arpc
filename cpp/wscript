@@ -45,6 +45,16 @@ def configure(conf):
 def build(bld):
 	bld.recurse('jsoncpp')
 
+	obj = bld(
+		features = ['cxx', 'cxxstlib'],
+		includes = '.',
+		target = 'arpc',
+		name = 'arpc',
+		uselib = 'BUILDFLAGS',
+		use = 'jsoncpp',
+		source = bld.path.ant_glob('arpc/*.cpp')
+	)
+
 
 	import re
 	r_test = re.compile('.cpp$')

@@ -1,8 +1,19 @@
 #ifndef ARPC_JSON_SERIALIZED_CALL_HPP
 #define ARPC_JSON_SERIALIZED_CALL_HPP
 
+/*
+json_serialized_call.hpp - serialized call class using JSON
+
+Copyright (c) 2011 Carlos Rafael Giani
+
+Distributed under the Boost Software License, Version 1.0.
+See accompanying file LICENSE_1_0.txt or copy at
+http://www.boost.org/LICENSE_1_0.txt
+*/
+
 #include <arpc_config.h>
 
+#include <stdexcept>
 #include <algorithm>
 #include <sstream>
 #include <string>
@@ -40,47 +51,16 @@ struct json_serialized_call
 		>
 	{
 	public:
-		json_value_iterator()
-		{
-		}
+		json_value_iterator();
+		json_value_iterator(Json::Value::const_iterator json_iterator);
+		json_value_iterator(json_value_iterator const &other);
 
-		json_value_iterator(Json::Value::const_iterator json_iterator):
-			json_iterator(json_iterator)
-		{
-		}
+		json_value_iterator& operator = (json_value_iterator const &other);
 
-		json_value_iterator(json_value_iterator const &other):
-			json_iterator(other.json_iterator)
-		{
-		}
-
-
-		json_value_iterator& operator = (json_value_iterator const &other)
-		{
-			json_iterator = other.json_iterator;
-			return *this;
-		}
-
-
-		Json::Value const & dereference() const
-		{
-			return *json_iterator;
-		}
-		
-		bool equal(json_value_iterator const &other) const
-		{
-			return json_iterator == other.json_iterator;
-		}
-
-		void increment()
-		{
-			++json_iterator;
-		}
-
-		void decrement()
-		{
-			--json_iterator;
-		}
+		Json::Value const & dereference() const;
+		bool equal(json_value_iterator const &other) const;
+		void increment();
+		void decrement();
 
 	protected:
 		Json::Value::const_iterator json_iterator;
@@ -92,10 +72,7 @@ struct json_serialized_call
 	typedef boost::iterator_range < json_value_iterator > parameter_range_t;
 	std::string function_name;
 
-	json_serialized_call():
-		json_value_array(Json::arrayValue)
-	{
-	}
+	json_serialized_call();
 };
 
 

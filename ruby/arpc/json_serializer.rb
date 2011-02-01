@@ -1,5 +1,5 @@
 =begin
-json_serialized_call.rb - serialized call class using JSON
+json_serializer.rb - serializer class using JSON
 
 Copyright (c) 2011 Carlos Rafael Giani
 
@@ -16,7 +16,7 @@ require 'json'
 module ARPC
 
 
-class JsonSerializedCall
+class JsonSerializer
 
   attr_accessor :function_name
   attr_accessor :parameters

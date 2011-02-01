@@ -13,6 +13,13 @@ The three main functions are:
   - register_instance_method: like register_function, but registering instance methods instead of functions
   - register_block_method: like register_function, but registering blocks instead of functions
 
+As an alternative to serialize_call, serialize can be used. Example:
+   rpc.serialize_call("foo", 'a', 'b', 'c')  # method 1
+   rpc.serialize.foo('a', 'b', 'c')  # method 2
+
+but please note that serialize makes use of method_missing, and respond_to? will always return true. This is a consequence
+of the fact that these "function" calls actually just generate messages.
+
 Copyright (c) 2011 Carlos Rafael Giani
 
 Distributed under the Boost Software License, Version 1.0.
@@ -26,9 +33,27 @@ module ARPC
 
 class ARPC
 
-  def initialize(serialized_call_class)
-    @serialized_call_class = serialized_call_class
+  class Serialize
+    def initialize arpc_instance
+      @arpc_instance = arpc_instance
+    end
+
+    def method_missing(sym, *args, &block)
+      @arpc_instance.serialize_call sym, *args
+    end
+
+    def respond_to?(sym)
+      true
+    end
+  end
+
+
+  attr_reader :serialize
+
+  def initialize(serializer_class)
+    @serializer_class = serializer_class
     @serialized_call_handlers = {}
+    @serialize = Serialize.new self
   end
 
   def register_function(function_name)
@@ -44,14 +69,14 @@ class ARPC
   end
 
   def serialize_call(function_name, *args)
-    serialized_call = @serialized_call_class.new
+    serialized_call = @serializer_class.new
     serialized_call.function_name = function_name
     serialized_call.parameters = args
     serialized_call.write
   end
 
   def invoke_serialized_call(in_buffer)
-    serialized_call = @serialized_call_class.new
+    serialized_call = @serializer_class.new
     serialized_call.read in_buffer
     handler = @serialized_call_handlers[serialized_call.function_name().to_s]
     handler.call(serialized_call.parameters) if handler

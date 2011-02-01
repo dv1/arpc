@@ -1,8 +1,8 @@
-#ifndef ARPC_JSON_SERIALIZED_CALL_HPP
-#define ARPC_JSON_SERIALIZED_CALL_HPP
+#ifndef ARPC_JSON_SERIALIZER_HPP
+#define ARPC_JSON_SERIALIZER_HPP
 
 /*
-json_serialized_call.hpp - serialized call class using JSON
+json_serializer.hpp - serialized call class using JSON
 
 Copyright (c) 2011 Carlos Rafael Giani
 
@@ -41,7 +41,7 @@ namespace arpc
 {
 
 
-struct json_serialized_call
+struct json_serializer
 {
 	class json_value_iterator:
 		public boost::iterator_facade <
@@ -72,19 +72,19 @@ struct json_serialized_call
 	typedef boost::iterator_range < json_value_iterator > parameter_range_t;
 	std::string function_name;
 
-	json_serialized_call();
+	json_serializer();
 };
 
 
 template < >
-struct serialized_call_traits < json_serialized_call >
+struct serialized_call_traits < json_serializer >
 {
-	typedef json_serialized_call::parameter_range_t parameters_t;
+	typedef json_serializer::parameter_range_t parameters_t;
 };
 
 
 template < typename InputRange >
-inline void read_from(json_serialized_call &serialized_call_, InputRange const &input)
+inline void read_from(json_serializer &serialized_call_, InputRange const &input)
 {
 	std::string str;
 	std::copy(input.begin(), input.end(), std::back_inserter(str));
@@ -112,7 +112,7 @@ inline void read_from(json_serialized_call &serialized_call_, InputRange const &
 
 
 template < typename OutputIterator >
-inline void write_to(json_serialized_call const &serialized_call_, OutputIterator output_begin)
+inline void write_to(json_serializer const &serialized_call_, OutputIterator output_begin)
 {
 	Json::Value output_value(Json::objectValue);
 	output_value["params"] = serialized_call_.json_value_array;
@@ -122,21 +122,21 @@ inline void write_to(json_serialized_call const &serialized_call_, OutputIterato
 }
 
 
-inline json_serialized_call::parameter_range_t get_parameters(json_serialized_call const &json_serialized_call_)
+inline json_serializer::parameter_range_t get_parameters(json_serializer const &json_serializer_)
 {
-	return json_serialized_call::parameter_range_t(json_serialized_call_.json_value_array.begin(), json_serialized_call_.json_value_array.end());
+	return json_serializer::parameter_range_t(json_serializer_.json_value_array.begin(), json_serializer_.json_value_array.end());
 }
 
 
-inline std::string get_function_name(json_serialized_call const &json_serialized_call_)
+inline std::string get_function_name(json_serializer const &json_serializer_)
 {
-	return json_serialized_call_.function_name;
+	return json_serializer_.function_name;
 }
 
 
-inline void set_function_name(json_serialized_call &json_serialized_call_, std::string const &function_name)
+inline void set_function_name(json_serializer &json_serializer_, std::string const &function_name)
 {
-	json_serialized_call_.function_name = function_name;
+	json_serializer_.function_name = function_name;
 }
 
 
@@ -209,17 +209,17 @@ bool get_parameter_value_impl(Json::Value const &json_value, Json::Value &value)
 
 
 template < typename T >
-inline void set_parameter_values_impl(json_serialized_call &json_serialized_call_, T&& param)
+inline void set_parameter_values_impl(json_serializer &json_serializer_, T&& param)
 {
-	json_serialized_call_.json_value_array.append(Json::Value(param));
+	json_serializer_.json_value_array.append(Json::Value(param));
 }
 
 
 template < typename First, typename ... Rest >
-inline void set_parameter_values_impl(json_serialized_call &json_serialized_call_, First&& first, Rest&& ... rest)
+inline void set_parameter_values_impl(json_serializer &json_serializer_, First&& first, Rest&& ... rest)
 {
-	set_parameter_values_impl(json_serialized_call_, std::forward < First > (first));
-	set_parameter_values_impl(json_serialized_call_, std::forward < Rest > (rest)...);
+	set_parameter_values_impl(json_serializer_, std::forward < First > (first));
+	set_parameter_values_impl(json_serializer_, std::forward < Rest > (rest)...);
 }
 
 
@@ -232,7 +232,7 @@ inline void set_parameter_values_impl(json_serialized_call &json_serialized_call
 
 
 template < typename T >
-inline bool get_parameter_value(json_serialized_call const &, Json::Value const &json_value, T &value)
+inline bool get_parameter_value(json_serializer const &, Json::Value const &json_value, T &value)
 {
 	// sometimes, the arity of the function is important; since one of the overloads has 3 arguments, not 2, this could cause trouble
 	// solution: wrap them in a function with 2 arguments, which is done here
@@ -244,10 +244,10 @@ inline bool get_parameter_value(json_serialized_call const &, Json::Value const 
 
 
 template < typename ... Params >
-inline void set_parameter_values(json_serialized_call &json_serialized_call_, Params&& ... params)
+inline void set_parameter_values(json_serializer &json_serializer_, Params&& ... params)
 {
-	json_serialized_call_.json_value_array = Json::Value(Json::arrayValue);
-	detail::set_parameter_values_impl(json_serialized_call_, std::forward < Params > (params)...);
+	json_serializer_.json_value_array = Json::Value(Json::arrayValue);
+	detail::set_parameter_values_impl(json_serializer_, std::forward < Params > (params)...);
 }
 
 
@@ -259,11 +259,11 @@ inline void set_parameter_values(json_serialized_call &json_serialized_call_, Pa
 #endif
 
 #define ARPC_SET_PARAMETER_VALUES_ACCESS_PARAMS(z, N, u) , Param##N const &param##N
-#define ARPC_SET_PARAMETER_VALUES_APPEND_VALUE(z, N, u)  json_serialized_call_.json_value_array.append(Json::Value(param##N));
+#define ARPC_SET_PARAMETER_VALUES_APPEND_VALUE(z, N, u)  json_serializer_.json_value_array.append(Json::Value(param##N));
 
 #define ARPC_SET_PARAMETER_VALUES_DEFINITION(z, N, u) \
 template < BOOST_PP_ENUM_PARAMS(N, typename Param) > \
-inline void set_parameter_values(json_serialized_call &json_serialized_call_  BOOST_PP_REPEAT(N, ARPC_SET_PARAMETER_VALUES_ACCESS_PARAMS, ~)) \
+inline void set_parameter_values(json_serializer &json_serializer_  BOOST_PP_REPEAT(N, ARPC_SET_PARAMETER_VALUES_ACCESS_PARAMS, ~)) \
 { \
 	BOOST_PP_REPEAT(N, ARPC_SET_PARAMETER_VALUES_APPEND_VALUE, ~) \
 }

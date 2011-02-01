@@ -17,9 +17,9 @@ See accompanying file LICENSE_1_0.txt or copy at
 http://www.boost.org/LICENSE_1_0.txt
 */
 
-function arpc(serialized_call_type)
+function arpc(serializer_type)
 {
-	this.serialized_call_type = serialized_call_type;
+	this.serializer_type = serializer_type;
 	this.serialized_call_handlers = {};
 }
 
@@ -33,7 +33,7 @@ arpc.prototype = {
 
 	serialize_call : function(function_name)
 	{
-		var serialized_call = new this.serialized_call_type;
+		var serialized_call = new this.serializer_type;
 		serialized_call.function_name = function_name;
 		var args = [];
 		for (var i = 1; i < arguments.length; i++)
@@ -44,7 +44,7 @@ arpc.prototype = {
 
 	invoke_serialized_call : function(in_buffer)
 	{
-		var serialized_call = new this.serialized_call_type;
+		var serialized_call = new this.serializer_type;
 		serialized_call.read_from(in_buffer);
 		var handler = this.serialized_call_handlers[serialized_call.function_name];
 		if (handler)
@@ -53,14 +53,14 @@ arpc.prototype = {
 }
 
 
-function json_serialized_call()
+function json_serializer()
 {
 	this.function_name = null;
 	this.parameters = null;
 }
 
 
-json_serialized_call.prototype = {
+json_serializer.prototype = {
 	read_from : function(buffer)
 	{
 		in_ = JSON.parse(buffer);
@@ -86,7 +86,7 @@ xxx = {
 }
 
 
-var r = new arpc(json_serialized_call);
+var r = new arpc(json_serializer);
 r.register_function("foobar", function(i,j) { print("foobar " + i + ' ' + j); });
 r.register_function("xxx", xxx.foo);
 

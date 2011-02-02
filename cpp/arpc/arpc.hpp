@@ -72,7 +72,7 @@ public:
 	}
 
 
-	// Specialized variant of register_function() for function pointers
+	// Specialized variant of register_function() for function pointers; the function type can be deduced automatically from these
 	// For example, this works: void foo(int) {}    ...  register_function("foo", &foo);
 	template < typename Function >
 	void register_function(
@@ -94,6 +94,7 @@ public:
 
 #ifdef WITH_CPP0X_LAMBDA
 	// At the moment, it is not possible to clearly distinguish lambda expressions from other types of function objects
+	// The distinction is necessary, since functors can have templated (= polymorphic) call operators
 	// Therefore, this is not a specialized register_lambda() function
 	template < typename Lambda >
 	void register_lambda(std::string const &function_name, Lambda lambda) // TODO: is it wise to copy lambda by value? Perhaps use rvalue references instead?

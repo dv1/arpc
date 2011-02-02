@@ -58,6 +58,7 @@ From the outside, only the arpc API is of interest; the serializer type is passe
 initialization, and is not interacted with directly.
 
 A minimal working setup involves these steps:
+
 1. Initialize arpc, with a chosen serializer
 2. Register at least one function, otherwise nothing will get called by incoming messages
 3. Perform a function call using arpc, producing a message
@@ -67,4 +68,57 @@ Typically, step 3 is done by a sender, while steps 2 and 4 are done by the recei
 (Step 1 is done by both, and both have to agree on the same serializer type.)
 
 
+A simple Ruby example:
 
+	require 'arpc/arpc'
+	require 'arpc/json_serializer'
+
+	arpc1 = ARPC::ARPC.new ARPC::JsonSerializer
+	serialized_call = arpc1.serialize.foo "hello", 3.14
+
+	def foo(a,b)
+		puts "foo #{a} #{b}"
+	end
+
+	arpc2 = ARPC::ARPC.new ARPC::JsonSerializer
+	arpc2.register_function :foo
+	arpc2.invoke_serialized_call serialized_call
+
+This examples uses two instances, arpc1 and arpc2, to provide a better example. Typically, sender (arpc1)
+and receiver (arpc2) are two separate processes/threads/nodes. In theory, one could serialize a call
+with an arpc instance and feed the serialized call back to this instance.
+
+The example above does the following steps:
+
+1. Create arpc1, using the JSON serializer
+2. Serialize a function call: calling a "foo" function, with parameters "hello" and 3.14
+3. Create arpc2, using the JSON serializer
+4. Register the foo function with arpc2
+5. Pass the serialized call from step 2 into arpc2, causing it to call foo with the parameters from step 2
+6. "hello 3.14" is printed
+
+This example uses the JSON serializer. The serialized function call then looks like this JSON object:
+
+	{
+		"func" : "foo",
+		"params" : ["hello", 3.14]
+	}
+
+__NOTE:__ Further documentation (reference, guide for extending arpc) is currently being written. When finished,
+it will reside in a docs/ folder.
+
+
+Future work & ideas
+-------------------
+
+Note that arpc is _not_ tightly coupled with JSON. JSON is the currently existing serializer. In future,
+BSON will be added as well. XML is also a possibility, so is YAML. Google Protocol Buffers could be used,
+but are problematic, since they expect the structure of the data to be known in advance.
+
+Likewise, arpc is not a Ruby-only project. Currently, implementations for Ruby, C++, and JavaScript exist.
+More are planned (Python, Scala, Java, C#, amongst others).
+
+An intriguing idea is to use arpc together with [ZeroMQ](http://www.zeromq.org/). The serialized function call
+is just a bunch of bytes, which fits perfectly with the ZeroMQ `recv()` and `send()` functions. Also,
+since in arpc, the sender does not wait for the receiving function to finish executing, multicast can be
+trivially used with arpc, issuing one function call to N receivers.

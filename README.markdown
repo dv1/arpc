@@ -95,6 +95,8 @@ The example above does the following steps:
 3. Create arpc2, using the JSON serializer
 4. Register the foo function with arpc2
 5. Pass the serialized call from step 2 into arpc2, causing it to call foo with the parameters from step 2
+   In real-world scenarios, the serialized call would have been transmitted using transports like raw TCP,
+   HTTP, AMQP, ZeroMQ, Multicast, or an IPC mechanism
 6. "hello 3.14" is printed
 
 This example uses the JSON serializer. The serialized function call then looks like this JSON object:
@@ -103,6 +105,11 @@ This example uses the JSON serializer. The serialized function call then looks l
 		"func" : "foo",
 		"params" : ["hello", 3.14]
 	}
+
+In this example, both sender and receiver are written in Ruby. However, nothing speaks against using
+different languages. Sender and receiver must previously agree on a serializer, nothing more is needed.
+For instance, the example receiver in the code above could have been written in C++; the C++ JSON serializer
+would then be used. No special glue code is necessary.
 
 __NOTE:__ Further documentation (reference, guide for extending arpc) is currently being written. When finished,
 it will reside in a docs/ folder.

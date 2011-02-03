@@ -61,7 +61,7 @@ def build(bld):
 
 
 	tests = [
-#		{ "file": "json_test.cpp", "unit_test" : True }
+		{ "file": "json_test.cpp", "unit_test" : True }
 	]
 
 
@@ -88,7 +88,7 @@ def build(bld):
 
 		bld(
 			features = features,
-			use = 'jsoncpp',
+			use = 'arpc',
 			uselib = uselib + ' BOOST BUILDFLAGS',
 			target = r_test.sub('.test', filename),
 			includes = '. test',

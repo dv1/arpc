@@ -144,6 +144,8 @@ inline void set_function_name(json_serializer &json_serializer_, std::string con
 namespace detail
 {
 
+// TODO: support char
+
 template < typename T >
 struct convert_json_value;
 
@@ -198,7 +200,7 @@ bool get_parameter_value_impl(Json::Value const &json_value, T &value, typename 
 
 
 // special overload in case a Json::Value is requested directly
-bool get_parameter_value_impl(Json::Value const &json_value, Json::Value &value)
+inline bool get_parameter_value_impl(Json::Value const &json_value, Json::Value &value)
 {
 	value = json_value;
 	return true;

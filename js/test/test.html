@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>arpc js test</title>
+<meta name="description" content="">
+<meta name="keywords" content="">
+<script type="text/javascript" src="json2.js"></script>
+<script type="text/javascript" src="../arpc/arpc.js"></script>
+<script type="text/javascript">
+
+var invoked = "";
+var call_ok = false;
+
+function yesno(b) { return b ? "yes" : "no"; }
+
+function to_html(s)
+{
+	return s.split("&").join("&amp;").split( "<").join("&lt;").split(">").join("&gt;");
+}
+
+function foo(str, num)
+{
+	invoked = "foo";
+	call_ok = (str == "hello") && (num == 415);
+}
+
+function run_test()
+{
+	var output = "";
+
+	function test_call(expected_call)
+	{
+		var invoked_ok = (invoked == expected_call);
+		var result = (invoked_ok && call_ok);
+		output += "expected call [" + expected_call + "], invoked [" + invoked + "], call ok: " + yesno(call_ok) + "<br>";
+		output += "==&gt; " + (result ? "PASSED" : "FAILED") + "<br>";
+		return result;
+	};
+
+	var rpc = new arpc(json_serializer);
+	rpc.register_function("foo", foo);
+	rpc.register_function("bar", function(i) { invoked = "bar"; ok = (i == 4000); });
+
+	buf = rpc.serialize_call("foo", "hello", 415);
+	output += "serialized call: " + to_html(buf) + "<br>";
+	rpc.invoke_serialized_call(buf);
+	test_call("foo");
+
+	buf = rpc.serialize_call("bar", 4000);
+	output += "serialized call: " + to_html(buf) + "<br>";
+	rpc.invoke_serialized_call(buf);
+	test_call("bar");
+
+	document.body.innerHTML = output;
+}
+
+window.onload = run_test;
+
+</script>
+</head>
+<body onload="run_test();">
+<div></div>
+</body>
+</html>
+

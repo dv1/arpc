@@ -27,6 +27,8 @@ function arpc(serializer_type)
 arpc.prototype = {
 	register_function : function(name, func)
 	{
+		if (foo == null) throw "foo is null";
+		if (func == null) throw "func is null";
 		var handler = function(params) { func.apply(this, params); };
 		this.serialized_call_handlers[name] = handler;
 	},
@@ -73,28 +75,4 @@ json_serializer.prototype = {
 		return JSON.stringify({ func: this.function_name, params : this.parameters });
 	}
 }
-
-
-
-
-// TEST/EXAMPLE START
-
-
-xxx = {
-	val : 9143,
-	foo : function(i,j,k) { print("xxxfoo" + ' ' + i + ' ' + j + ' ' + k + '   ' + xxx.val); }
-}
-
-
-var r = new arpc(json_serializer);
-r.register_function("foobar", function(i,j) { print("foobar " + i + ' ' + j); });
-r.register_function("xxx", xxx.foo);
-
-t = r.serialize_call("foobar", 4,1);
-r.invoke_serialized_call(t);
-r.invoke_serialized_call('{"func":"foobar", "params":[5,1]}')
-r.invoke_serialized_call('{"func":"xxx", "params":[5,1,9]}')
-
-
-// TEST/EXAMPLE END
 

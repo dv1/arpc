@@ -52,8 +52,14 @@ def build(bld):
 		name = 'arpc',
 		uselib = 'BOOST BUILDFLAGS',
 		use = 'jsoncpp',
-		source = bld.path.ant_glob('arpc/*.cpp')
+		source = bld.path.ant_glob('arpc/*.cpp'),
+		install_path = '${PREFIX}/lib'
 	)
+
+	from waflib import Node
+	install_headers_node = Node.Node('${PREFIX}/include/arpc', None)
+	install_headers_node.mkdir()
+	bld.install_files(str(install_headers_node), bld.path.ant_glob('arpc/*.hpp'))
 
 
 	import re
@@ -92,6 +98,7 @@ def build(bld):
 			uselib = uselib + ' BOOST BUILDFLAGS',
 			target = r_test.sub('.test', filename),
 			includes = '. test',
-			source = "test/" + filename
+			source = "test/" + filename,
+			install_path = None
 		)
 

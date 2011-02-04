@@ -27,7 +27,7 @@ function arpc(serializer_type)
 arpc.prototype = {
 	register_function : function(name, func)
 	{
-		if (foo == null) throw "foo is null";
+		if (name == null) throw "name is null";
 		if (func == null) throw "func is null";
 		var handler = function(params) { func.apply(this, params); };
 		this.serialized_call_handlers[name] = handler;
@@ -75,4 +75,8 @@ json_serializer.prototype = {
 		return JSON.stringify({ func: this.function_name, params : this.parameters });
 	}
 }
+
+
+exports.arpc = arpc;
+exports.json_serializer = json_serializer;
 

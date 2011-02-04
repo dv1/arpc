@@ -43,7 +43,7 @@ function run_test()
 	rpc.register_function("foo", foo);
 	rpc.register_function("bar", function(i) { invoked = "bar"; ok = (i == 4000); });
 
-	buf = rpc.serialize_call("foo", "hello", 415);
+	var buf = rpc.serialize_call("foo", "hello", 415);
 	output += "serialized call: " + to_html(buf) + "<br>";
 	rpc.invoke_serialized_call(buf);
 	test_call("foo");

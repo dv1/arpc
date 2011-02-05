@@ -3,7 +3,7 @@
 
 def options(opt):
 	opt.tool_options('compiler_cxx')
-	opt.tool_options('boost')
+	opt.tool_options('boost', '.')
 	opt.add_option('--with-cpp0x', action='store_true', default=False, help='Use C++0x and add support for C++0x lambdas')
 
 
@@ -22,8 +22,18 @@ def configure(conf):
 		if b:
 			conf.define(define_name, 1)
 
-	conf.check_tool('compiler_cxx boost')
-        conf.check_boost()
+	conf.check_tool('compiler_cxx')
+	conf.check_tool('boost', '.')
+	with_boost = conf.check_boost(lib='system', mandatory=0, static='both')
+	with_pthread = conf.check_cxx(lib = 'pthread', mandatory=0)
+	if with_boost:
+		conf.env['WITH_BOOST'] = 1
+		if with_pthread:
+			conf.env['WITH_PTHREAD'] = 1
+		else:
+			conf.end_msg("pthread not found - not building chat example", "YELLOW")
+	else:
+		conf.end_msg("boost not found - not building chat example & cpp tests", "YELLOW")
 
 	if conf.options.with_cpp0x:
 		stdflags = ['-std=c++0x']
@@ -48,6 +58,7 @@ def build(bld):
 	obj = bld(
 		features = ['cxx', 'cxxstlib'],
 		includes = '.',
+		export_includes = '.',
 		target = 'arpc',
 		name = 'arpc',
 		uselib = 'BOOST BUILDFLAGS',
@@ -66,9 +77,10 @@ def build(bld):
 	r_test = re.compile('.cpp$')
 
 
-	tests = [
-		{ "file": "json_test.cpp", "unit_test" : True }
-	]
+	tests = []
+
+	if bld.env['WITH_BOOST']:
+		tests += [{ "file": "json_test.cpp", "unit_test" : True }]
 
 
 	# create build task generators for all one-file unit tests

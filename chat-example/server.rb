@@ -45,7 +45,10 @@ end
 
 begin
   EM.run do
-    EventMachine::start_server '0.0.0.0', 51413, MyProtocol
+    Host = '0.0.0.0'
+    Port = 51413
+    EventMachine::start_server Host, Port, MyProtocol
+    puts "Server started, running at #{Host}:#{Port}"
   end
 rescue Interrupt
   warn "User interrupt caught, exiting"

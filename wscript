@@ -4,7 +4,7 @@ top = '.'
 out = 'build'
 
 
-subdirs = ['cpp']
+subdirs = ['cpp', 'chat-example']
 
 
 def options(opt):

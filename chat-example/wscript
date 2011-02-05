@@ -1,0 +1,19 @@
+def options(opt):
+	pass
+
+
+def configure(conf):
+	pass
+
+
+def build(bld):
+	if bld.env['WITH_BOOST'] and bld.env['WITH_PTHREAD']:
+		bld(
+			features = ['cxx', 'cxxprogram'],
+			target = 'cppclient',
+			uselib = 'BOOST_SYSTEM BOOST PTHREAD BUILDFLAGS',
+			use = 'arpc',
+			source = 'client.cpp',
+			install_path = None
+		)
+

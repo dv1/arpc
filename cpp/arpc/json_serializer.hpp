@@ -30,9 +30,9 @@ http://www.boost.org/LICENSE_1_0.txt
 #include <boost/mpl/map.hpp>
 #include <boost/mpl/at.hpp>
 
-#include <json/value.h>
-#include <json/reader.h>
-#include <json/writer.h>
+#include "jsoncpp/include/json/value.h"
+#include "jsoncpp/include/json/reader.h"
+#include "jsoncpp/include/json/writer.h"
 
 #include "serialized_call_traits.hpp"
 
@@ -144,8 +144,6 @@ inline void set_function_name(json_serializer &json_serializer_, std::string con
 namespace detail
 {
 
-// TODO: support char
-
 template < typename T >
 struct convert_json_value;
 
@@ -199,6 +197,27 @@ bool get_parameter_value_impl(Json::Value const &json_value, T &value, typename 
 }
 
 
+// special overload for chars
+inline bool get_parameter_value_impl(Json::Value const &json_value, char &value)
+{
+	try
+	{
+		std::string str = json_value.asString();
+		if (str.length() != 1)
+			return false;
+		else
+		{
+			value = str[0];
+			return true;
+		}
+	}
+	catch (std::exception const &)
+	{
+		return false;
+	}
+}
+
+
 // special overload in case a Json::Value is requested directly
 inline bool get_parameter_value_impl(Json::Value const &json_value, Json::Value &value)
 {
@@ -214,6 +233,15 @@ template < typename T >
 inline void set_parameter_values_impl(json_serializer &json_serializer_, T&& param)
 {
 	json_serializer_.json_value_array.append(Json::Value(param));
+}
+
+
+// special overload for chars
+inline void set_parameter_values_impl(json_serializer &json_serializer_, char param)
+{
+	std::string str;
+	str += param;
+	json_serializer_.json_value_array.append(Json::Value(str));
 }
 
 
@@ -238,7 +266,7 @@ inline bool get_parameter_value(json_serializer const &, Json::Value const &json
 {
 	// sometimes, the arity of the function is important; since one of the overloads has 3 arguments, not 2, this could cause trouble
 	// solution: wrap them in a function with 2 arguments, which is done here
-	return detail::get_parameter_value_impl < T > (json_value, value);
+	return detail::get_parameter_value_impl(json_value, value);
 }
 
 

@@ -1,8 +1,12 @@
-#ifndef ARPC_LAMBDA_TRAITS_HPP
-#define ARPC_LAMBDA_TRAITS_HPP
+#ifndef ARPC_FUNCTOR_TRAITS_HPP
+#define ARPC_FUNCTOR_TRAITS_HPP
 
 /*
-lambda_traits.hpp - traits class for C++0x lambda expressions; determines return type and argument types of a lambda expression
+functor_traits.hpp - traits class for functors; determines return type and argument types of a functor
+(also works for C++0x lambda expressions, since these form a functor
+NOTE: the given functor must have a non-templated call operator
+
+requires C++0x' decltype() operator
 
 Copyright (c) 2011 Carlos Rafael Giani
 
@@ -33,27 +37,27 @@ namespace detail
 
 
 template < typename T >
-struct lambda_traits_impl;
+struct functor_traits_impl;
 
 
 #ifdef WITH_CPP0X_VARIADIC_TEMPLATES
 
 template < class C, class R, class ... A >
-struct lambda_traits_impl < R (C::*)(A ...) >
+struct functor_traits_impl < R (C::*)(A ...) >
 {
 	typedef typename from_variadic < A... > ::type arguments_t;
 	typedef R result_t;
 };
 
 template < class C, class R, class ... A >
-struct lambda_traits_impl < R (C::*)(A ...) const >
+struct functor_traits_impl < R (C::*)(A ...) const >
 {
 	typedef typename from_variadic < A... > ::type arguments_t;
 	typedef R result_t;
 };
 
 template < class R, class ... A >
-struct lambda_traits_impl < R (*)(A ...) >
+struct functor_traits_impl < R (*)(A ...) >
 {
 	typedef typename from_variadic < A... > ::type arguments_t;
 	typedef R result_t;
@@ -71,21 +75,21 @@ struct lambda_traits_impl < R (*)(A ...) >
 
 #define ARPC_LAMBDA_TRAITS_IMPL_DEFINE_STRUCTS(z, N, u) \
 template < class C, class R  BOOST_PP_REPEAT(N, ARPC_LAMBDA_TRAITS_IMPL_TEMPLATE_PARAM, ~) > \
-struct lambda_traits_impl < R (C::*)(BOOST_PP_ENUM_PARAMS(N, Arg)) > \
+struct functor_traits_impl < R (C::*)(BOOST_PP_ENUM_PARAMS(N, Arg)) > \
 { \
 	typedef boost::mpl::vector < BOOST_PP_ENUM_PARAMS(N, Arg) > arguments_t; \
 	typedef R result_t; \
 }; \
 \
 template < class C, class R  BOOST_PP_REPEAT(N, ARPC_LAMBDA_TRAITS_IMPL_TEMPLATE_PARAM, ~) > \
-struct lambda_traits_impl < R (C::*)(BOOST_PP_ENUM_PARAMS(N, Arg)) const > \
+struct functor_traits_impl < R (C::*)(BOOST_PP_ENUM_PARAMS(N, Arg)) const > \
 { \
 	typedef boost::mpl::vector < BOOST_PP_ENUM_PARAMS(N,  Arg) > arguments_t; \
 	typedef R result_t; \
 }; \
 \
 template < class R  BOOST_PP_REPEAT(N, ARPC_LAMBDA_TRAITS_IMPL_TEMPLATE_PARAM, ~) > \
-struct lambda_traits_impl < R (*)(BOOST_PP_ENUM_PARAMS(N, Arg)) > \
+struct functor_traits_impl < R (*)(BOOST_PP_ENUM_PARAMS(N, Arg)) > \
 { \
 	typedef boost::mpl::vector < BOOST_PP_ENUM_PARAMS(N, Arg) > arguments_t; \
 	typedef R result_t; \
@@ -112,10 +116,10 @@ struct lambda_traits_impl < R (*)(BOOST_PP_ENUM_PARAMS(N, Arg)) > \
 
 
 template < typename T >
-struct lambda_traits
+struct functor_traits
 {
-	typedef decltype(&T::operator()) lambda_t;
-	typedef detail::lambda_traits_impl < lambda_t > impl_t;
+	typedef decltype(&T::operator()) call_operator_type_t;
+	typedef detail::functor_traits_impl < call_operator_type_t > impl_t;
 	typedef typename impl_t::arguments_t arguments_t;
 	typedef typename impl_t::result_t result_t;
 

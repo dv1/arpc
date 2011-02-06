@@ -31,9 +31,8 @@ http://www.boost.org/LICENSE_1_0.txt
 #include <boost/type_traits/is_function.hpp>
 #include <boost/type_traits/remove_pointer.hpp>
 #include "serialized_call_handler.hpp"
-#ifdef WITH_CPP0X_LAMBDA
-#include "lambda_traits.hpp"
-#else
+#include "functor_traits.hpp"
+#ifndef WITH_CPP0X_VARIADIC_TEMPLATES
 #include <boost/preprocessor/repetition/enum_params.hpp>
 #include <boost/preprocessor/repetition/repeat.hpp>
 #include <boost/preprocessor/iteration/local.hpp>
@@ -47,6 +46,17 @@ namespace arpc
 template < typename SerializedCall >
 class arpc
 {
+protected:
+	template < typename Function >
+	struct is_function_pointer
+	{
+		typedef typename boost::mpl::and_ <
+			typename boost::is_pointer < Function > ::type,
+			typename boost::is_function < typename boost::remove_pointer < Function > ::type > ::type
+		> ::type type;
+	};
+
+
 public:
 	typedef SerializedCall serialized_call_t;
 	typedef boost::shared_ptr < serialized_call_handler_base < SerializedCall > > serialized_call_handler_ptr_t;
@@ -78,12 +88,7 @@ public:
 	void register_function(
 		std::string const &function_name,
 		Function const &function,
-		typename boost::enable_if <
-			typename boost::mpl::and_ <
-				typename boost::is_pointer < Function > ::type,
-				typename boost::is_function < typename boost::remove_pointer < Function > ::type > ::type
-			> ::type
-		> ::type const *dummy = 0
+		typename boost::enable_if < typename is_function_pointer < Function > ::type > ::type const *dummy = 0
 	)
 	{
 		typedef typename boost::function_types::function_type < boost::function_types::components < Function > > ::type synthesized_function_type_t;
@@ -92,18 +97,21 @@ public:
 	}
 
 
-#ifdef WITH_CPP0X_LAMBDA
-	// At the moment, it is not possible to clearly distinguish lambda expressions from other types of function objects
-	// The distinction is necessary, since functors can have templated (= polymorphic) call operators
-	// Therefore, this is not a specialized register_lambda() function
-	template < typename Lambda >
-	void register_lambda(std::string const &function_name, Lambda lambda) // TODO: is it wise to copy lambda by value? Perhaps use rvalue references instead?
+	// Specialized variant of register_function() for functors with non-templated call operators; the function type can be deduced automatically from these
+	// For example, this works: struct foo { void operator() {} };    ...  register_function("foo", foo());
+	// Does NOT work properly for functors with templated call operators, and requires the C++0x decltype() operator (used inside functor_traits)
+	template < typename Function >
+	void register_function(
+		std::string const &function_name,
+		Function const &function,
+		typename boost::disable_if < typename is_function_pointer < Function > ::type > ::type const *dummy = 0
+	)
 	{
-		typedef lambda_traits < Lambda > traits_t;
+		dummy = dummy;
+		typedef functor_traits < Function > traits_t;
 		typedef typename boost::function_types::function_type < typename traits_t::components_t > ::type synthesized_function_type_t;
-		register_function < synthesized_function_type_t, Lambda > (function_name, lambda);
+		register_function < synthesized_function_type_t, Function > (function_name, function);
 	}
-#endif
 
 
 #ifdef WITH_CPP0X_VARIADIC_TEMPLATES

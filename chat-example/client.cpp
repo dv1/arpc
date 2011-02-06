@@ -14,7 +14,7 @@ class client:
 	private boost::noncopyable
 {
 public:
-	typedef ::arpc::arpc < arpc::json_serializer > arpc_t;
+	typedef arpc::arpc < arpc::json_serializer > arpc_t;
 
 
 	explicit client(std::string const &nickname, io_service& io, ip::tcp::resolver::iterator endpoint_iterator):

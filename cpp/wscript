@@ -53,17 +53,14 @@ def configure(conf):
 
 
 def build(bld):
-	bld.recurse('jsoncpp')
-
 	obj = bld(
 		features = ['cxx', 'cxxstlib'],
-		includes = '.',
+		includes = '. arpc/jsoncpp/include',
 		export_includes = '.',
 		target = 'arpc',
 		name = 'arpc',
 		uselib = 'BOOST BUILDFLAGS',
-		use = 'jsoncpp',
-		source = bld.path.ant_glob('arpc/*.cpp'),
+		source = bld.path.ant_glob('arpc/*.cpp') + bld.path.ant_glob('arpc/jsoncpp/src/lib_json/*.cpp'),
 		install_path = '${PREFIX}/lib'
 	)
 

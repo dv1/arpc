@@ -7,11 +7,11 @@
 
 bool ok = false;
 
-void foo(int i, std::string const &s)
+void foo(int i, char c, std::string const &s)
 {
-	ok = (i == 5) && (s == "hello");
+	ok = (i == 5) && (c == 'X') && (s == "hello");
 	if (!ok)
-		std::cerr << "foo(): expected: (5, \"hello\"), got: (" << i << ", " << s << ")\n";
+		std::cerr << "foo(): expected: (5, 'c', \"hello\"), got: (" << i << ", '" << c << "', \"" << s << "\")\n";
 }
 
 
@@ -29,14 +29,13 @@ struct foofunctor
 int main()
 {
 	typedef std::vector < uint8_t > buf_t;
-	using namespace arpc;
 	buf_t buf;
 
-	::arpc::arpc < json_serializer > rpc;
+	arpc::arpc < arpc::json_serializer > rpc;
 	rpc.register_function("foo", &foo);
-	rpc.register_function < void(bool, long) > ("foofunctor", foofunctor());
+	rpc.register_function("foofunctor", foofunctor());
 #ifdef WITH_CPP0X_LAMBDA
-	rpc.register_lambda("bar", [&](std::string const &s, bool b) {
+	rpc.register_function("bar", [&](std::string const &s, bool b) {
 		ok = (s == "hello") && !b;
 		if (!ok)
 			std::cerr << "lambda: expected: (\"hello\", false), got: (" << s << ", " << b << ")\n";
@@ -44,7 +43,7 @@ int main()
 #endif
 
 	buf.clear();
-	rpc.serialize_call(buf, "foo", 5, "hello");
+	rpc.serialize_call(buf, "foo", 5, 'X', "hello");
 	rpc.invoke_serialized_call(buf);
 	if (!ok) return -1;
 

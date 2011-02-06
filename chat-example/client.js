@@ -1,6 +1,10 @@
-require.paths.unshift('../js/arpc');
+// run this with NodeJS 0.2.6 or newer
+
+
+require.paths.unshift('../js');
 var net = require('net');
-var arpc = require('arpc');
+var arpc = require('arpc/arpc');
+var serializer = require('arpc/json_serializer');
 
 
 function readline(one_shot, callback)
@@ -29,7 +33,7 @@ new readline(true, function(nick) {
 	console.log("Welcome to the JavaScript client for the simple chat example, " + nick + ". Type quit to end the client");
 
 
-	var rpc = new arpc.arpc(arpc.json_serializer);
+	var rpc = new arpc.arpc(serializer.json_serializer);
 	rpc.register_function("server_message", function(nickname, line) {
 		console.log(nickname + "> " + line);
 	});

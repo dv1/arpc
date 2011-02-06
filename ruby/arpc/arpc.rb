@@ -72,12 +72,12 @@ class ARPC
     serialized_call = @serializer_class.new
     serialized_call.function_name = function_name
     serialized_call.parameters = args
-    serialized_call.write
+    serialized_call.write_to
   end
 
   def invoke_serialized_call(in_buffer)
     serialized_call = @serializer_class.new
-    serialized_call.read in_buffer
+    serialized_call.read_from in_buffer
     handler = @serialized_call_handlers[serialized_call.function_name().to_s]
     handler.call(serialized_call.parameters) if handler
   end

@@ -24,13 +24,13 @@ class JsonSerializer
   def initialize
   end
 
-  def read buffer
+  def read_from buffer
     in_ = JSON.parse buffer
     @function_name = in_["func"]
     @parameters = in_["params"]
   end
 
-  def write
+  def write_to
     out = { :func => @function_name, :params => @parameters }
     JSON.generate out
   end

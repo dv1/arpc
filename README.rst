@@ -115,7 +115,13 @@ different languages. Sender and receiver must previously agree on a serializer, 
 For instance, the example receiver in the code above could have been written in C++; the C++ JSON serializer
 would then be used. No special glue code is necessary.
 
-`Details about the serializer <docs/concepts.rst>`_
+`Details about the serializer <docs/serializer.rst>`_
+
+`C++ implementation <docs/cpp.rst>`_
+
+`Ruby implementation <docs/ruby.rst>`_
+
+`JavaScript implementation <docs/js.rst>`_
 
 **NOTE:** Further documentation (reference, guide for extending arpc) is currently being written. When finished,
 it will reside in a docs/ folder.

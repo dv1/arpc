@@ -34,6 +34,10 @@ The serializer must implement two functions:
 - `set_parameters(parameters)/get_parameters()`
   Accessors for the parameters.
 
+*Note*: the function signatures may differ slightly between the implementations. For example, the C++
+implementation uses an extrinsic form of the functions above, while the Ruby one uses `attr_accessor`
+to generate the accessors, which means they do not have `set_/get_` prepended to their names.
+
 
 Serialized representation
 -------------------------

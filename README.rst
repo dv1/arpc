@@ -18,7 +18,7 @@ integral part of arpc; the function call is serialized to a message that can be 
 transmitted, and deserialized by the receiver. The deserialized call can then be used for invoking
 a function.
 
-The actual transport of the serialized call is _not_ part of arpc. Once the function call is serialized,
+The actual transport of the serialized call is *not* part of arpc. Once the function call is serialized,
 it is up to the programmer to do something with that result. Said result is just a sequence of bytes.
 It can be transmitted, stored, in any way. arpc does not enforce or include specific transport and/or
 storage mechanisms. It also does not contain error correction; it is up to the transport/storage
@@ -70,6 +70,8 @@ Typically, step 3 is done by a sender, while steps 2 and 4 are done by the recei
 
 A simple Ruby example:
 
+::
+
 	require 'arpc/arpc'
 	require 'arpc/json_serializer'
 
@@ -101,6 +103,8 @@ The example above does the following steps:
 
 This example uses the JSON serializer. The serialized function call then looks like this JSON object:
 
+::
+
 	{
 		"func" : "foo",
 		"params" : ["hello", 3.14]
@@ -111,7 +115,9 @@ different languages. Sender and receiver must previously agree on a serializer, 
 For instance, the example receiver in the code above could have been written in C++; the C++ JSON serializer
 would then be used. No special glue code is necessary.
 
-__NOTE:__ Further documentation (reference, guide for extending arpc) is currently being written. When finished,
+`Details about the serializer <docs/concepts.rst>`_
+
+**NOTE:** Further documentation (reference, guide for extending arpc) is currently being written. When finished,
 it will reside in a docs/ folder.
 
 
@@ -125,7 +131,7 @@ but are problematic, since they expect the structure of the data to be known in 
 Likewise, arpc is not a Ruby-only project. Currently, implementations for Ruby, C++, and JavaScript exist.
 More are planned (Python, Scala, Java, C#, amongst others).
 
-An intriguing idea is to use arpc together with [ZeroMQ](http://www.zeromq.org/). The serialized function call
+An intriguing idea is to use arpc together with `ZeroMQ <http://www.zeromq.org/>`_. The serialized function call
 is just a bunch of bytes, which fits perfectly with the ZeroMQ `recv()` and `send()` functions. Also,
 since in arpc, the sender does not wait for the receiving function to finish executing, multicast can be
 trivially used with arpc, issuing one function call to N receivers.
